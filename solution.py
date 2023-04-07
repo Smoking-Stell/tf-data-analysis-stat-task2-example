@@ -1,17 +1,23 @@
 import pandas as pd
 import numpy as np
 
-from scipy.stats import norm
+from scipy.stats import chi2
 
 
 chat_id = 461750643 # Ваш chat ID, не меняйте название переменной
 
 def solution(p: float, x: np.array) -> tuple:
-    # Измените код этой функции
-    # Это будет вашим решением
-    # Не меняйте название функции и её аргументы
-    alpha = 1 - p
-    loc = x.mean()
-    scale = np.sqrt(np.var(x)) / np.sqrt(len(x))
-    return loc - scale * norm.ppf(1 - alpha / 2), \
-           loc - scale * norm.ppf(alpha / 2)
+	q = 1 - p
+	loc = 0
+	n = len(x)
+	sum_variance = np.sum((x - loc)**2) / (n - 1)
+	lower_bound_chi2 = chi2.ppf(q / 2, n - 1)
+	upper_bound_chi2 = chi2.ppf(1 - q / 2, n - 1)
+
+	# Доверительный интервал для дисперсии
+	lower_bound_variance = (n - 1) * sum_variance / upper_bound_chi2
+	upper_bound_variance = (n - 1) * sum_variance / lower_bound_chi2
+
+	lower_ans = np.sqrt(lower_bound_variance / 18)
+	upper_ans = np.sqrt(upper_bound_variance / 18)
+	return lower_ans, upper_ans
